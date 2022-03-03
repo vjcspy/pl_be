@@ -97,6 +97,7 @@ export const sendForm1 = async (
   data_key: string,
   form_config_id: string,
   ladipage_id: string,
+  capcha: string,
 ) => {
   try {
     const body = {
@@ -109,15 +110,12 @@ export const sendForm1 = async (
           value: 'https://phuonglinhperfume.com/flash-sale-2/',
         },
         { name: 'utm_source', value: '' },
+        { name: 'utm_medium', value: '' },
         {
-          name: 'utm_medium',
+          name: 'utm_campaign',
           value: '',
         },
-        { name: 'utm_campaign', value: '' },
-        {
-          name: 'utm_term',
-          value: '',
-        },
+        { name: 'utm_term', value: '' },
         { name: 'utm_content', value: '' },
         {
           name: 'variant_url',
@@ -154,16 +152,20 @@ export const sendForm1 = async (
       data_key: data_key,
       status_send: 1,
       total_revenue: products.length === 1 ? 899000 : 1598000,
+      captcha_token: capcha,
+
       time_zone: 7,
     };
 
-    await fetch('https://api.form.ladipage.com/sendform', {
+    const res = await fetch('https://api.form.ladipage.com/sendform', {
       headers: {
         accept: '*/*',
         'accept-language': 'vi,en-US;q=0.9,en;q=0.8',
+        'cache-control': 'no-cache',
         'content-type': 'application/json',
+        pragma: 'no-cache',
         'sec-ch-ua':
-          '"Google Chrome";v="95", "Chromium";v="95", ";Not A Brand";v="99"',
+          '" Not A;Brand";v="99", "Chromium";v="98", "Google Chrome";v="98"',
         'sec-ch-ua-mobile': '?0',
         'sec-ch-ua-platform': '"macOS"',
         'sec-fetch-dest': 'empty',
@@ -175,6 +177,9 @@ export const sendForm1 = async (
       body: JSON.stringify(body),
       method: 'POST',
     });
+    const data = await res.text();
+
+    return data;
   } catch (e) {
     console.error('send form 1 error', e);
   }
@@ -189,6 +194,7 @@ export const sendForm2 = async (
   checkoutToken: string,
   form_config_id: string,
   ladipage_id: string,
+  capcha: string,
 ) => {
   try {
     const body = {
@@ -200,22 +206,34 @@ export const sendForm2 = async (
           name: 'url_page',
           value: 'https://phuonglinhperfume.com/flash-sale-2/',
         },
-        { name: 'utm_source', value: '' },
+        {
+          name: 'utm_source',
+          value: '',
+        },
         {
           name: 'utm_medium',
           value: '',
         },
-        { name: 'utm_campaign', value: '' },
+        {
+          name: 'utm_campaign',
+          value: '',
+        },
         {
           name: 'utm_term',
           value: '',
         },
-        { name: 'utm_content', value: '' },
+        {
+          name: 'utm_content',
+          value: '',
+        },
         {
           name: 'variant_url',
           value: '',
         },
-        { name: 'variant_content', value: '' },
+        {
+          name: 'variant_content',
+          value: '',
+        },
       ],
       form_data: [
         { name: 'name', value: name },
@@ -244,15 +262,18 @@ export const sendForm2 = async (
       status_send: 2,
       checkout_token: checkoutToken,
       total_revenue: products.length === 1 ? 899000 : 1598000,
+      captcha_token: capcha,
       time_zone: 7,
     };
-    await fetch('https://api.form.ladipage.com/sendform', {
+    const res = await fetch('https://api.form.ladipage.com/sendform', {
       headers: {
         accept: '*/*',
         'accept-language': 'vi,en-US;q=0.9,en;q=0.8',
+        'cache-control': 'no-cache',
         'content-type': 'application/json',
+        pragma: 'no-cache',
         'sec-ch-ua':
-          '"Google Chrome";v="95", "Chromium";v="95", ";Not A Brand";v="99"',
+          '" Not A;Brand";v="99", "Chromium";v="98", "Google Chrome";v="98"',
         'sec-ch-ua-mobile': '?0',
         'sec-ch-ua-platform': '"macOS"',
         'sec-fetch-dest': 'empty',
@@ -264,6 +285,10 @@ export const sendForm2 = async (
       body: JSON.stringify(body),
       method: 'POST',
     });
+
+    const data = await res.text();
+
+    return data;
   } catch (e) {
     console.error('send form 2 error', e);
   }
