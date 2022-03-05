@@ -1,10 +1,12 @@
 import { getRandomId } from './random-id';
-import { getRandomAdd } from './getRandomAdd';
+import { getCacheAdd, getRandomAdd } from './getRandomAdd';
 import { getCheckoutToken, sendForm1, sendForm2 } from './ddos';
 import { randomIntFromInterval } from './randomNumber';
+import { getTelephone } from './getTelephone';
+import * as _ from 'lodash';
 
 const ladipage_id = '62185d22c113db00169769f7';
-const form_config_id = '6218742cc113db00169838fb';
+const form_config_id = '621e052e04f6520020ce9306';
 
 const LAST_NAME = [
   'Nguyễn',
@@ -88,11 +90,25 @@ export const checkout = async (
   console.log('checkout ok');
 };
 
+const throttGetAdd = _.throttle(async () => {
+  const data = await throttGetAdd();
+  if (data) {
+    getCacheAdd(data);
+  }
+}, 20000);
+
 export const placeOrder = async (capcha: string[]) => {
-  // const maxOrderCount = randomIntFromInterval(1, 3);
   const addInfo = [];
-  const addData = await getRandomAdd();
+  let addData = getCacheAdd();
+  if (addData === null) {
+    addData = getCacheAdd(await getRandomAdd());
+  }
+
+  setTimeout(async () => {
+    throttGetAdd();
+  }, 5000);
   if (Array.isArray(addData?.addNameArr)) {
+    addData.addNameArr = _.shuffle(addData.addNameArr);
     addData.addNameArr.forEach((nameData: string) => {
       const _nameArr = nameData.split(' ');
       if (Array.isArray(_nameArr) && _nameArr.length === 3) {
@@ -101,10 +117,7 @@ export const placeOrder = async (capcha: string[]) => {
             _nameArr[1]
           } ${_nameArr[0]}`;
           const add = addData.addDataArr[randomIntFromInterval(1, 10) - 1];
-          const preTele = ['091', '088', '096', '097', '098'];
-          const telephone = `${
-            preTele[randomIntFromInterval(1, preTele.length) - 1]
-          }${Math.floor(Math.random() * 10000000)}`;
+          const telephone = getTelephone();
           addInfo.push({
             name,
             add,
@@ -116,9 +129,11 @@ export const placeOrder = async (capcha: string[]) => {
       }
     });
   }
-
+  if (addInfo.length < 1) {
+    console.log('error: address info');
+  }
   const jobs: any = [];
-  const SPLIT_CHAR = [',', '/', '-', '  ', '_', '\\'];
+  const SPLIT_CHAR = [',', ' /', ' -', ' ', ' _', ' \\'];
   for (let i = 0; i < 1; i++) {
     const _add = addInfo[i];
     jobs.push(
@@ -135,11 +150,12 @@ export const placeOrder = async (capcha: string[]) => {
               _namePre[randomIntFromInterval(1, _namePre.length) - 1]
             } ${_nameArrSp[randomIntFromInterval(1, _nameArrSp.length) - 1]}`;
           }
-
-          _add.add = _add.add.replaceAll(
-            ',',
-            SPLIT_CHAR[randomIntFromInterval(1, SPLIT_CHAR.length) - 1],
-          );
+          if (randomIntFromInterval(1, 5) >= 3) {
+            _add.add = _add.add.replaceAll(
+              ',',
+              SPLIT_CHAR[randomIntFromInterval(1, SPLIT_CHAR.length) - 1],
+            );
+          }
           console.log(
             `name: '${_add.name}' add: '${_add.add}' telephone: '${_add.telephone}'`,
           );
@@ -151,7 +167,7 @@ export const placeOrder = async (capcha: string[]) => {
             capcha[1],
           );
           resolve(null);
-        }, randomIntFromInterval(3000, 50000));
+        }, randomIntFromInterval(1, 500));
       }),
     );
   }
